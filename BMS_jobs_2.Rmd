@@ -1,0 +1,124 @@
+---
+title: "BMS_jobs"
+author: "Victoria_Binimelis"
+date: "31/5/2021"
+output: html_document
+runtime: shiny
+---
+
+### BMS duplicated jobs
+
+See bellow the duplicated jobs in LIVE
+
+```{r echo=FALSE,}
+##agafam el JSON de la URL i el convertim en dataframe
+URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+jobs_data_frame <- as.data.frame(URL_jobs)
+
+##accedim al segon nivell de JSON/dataframe
+jobs_data_frame <- do.call(data.frame, jobs_data_frame)
+
+##eliminam els jobs de disney
+jobs_data_frame<-subset(jobs_data_frame, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                        & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+
+
+##convertir la columna del nom del CM en llista
+jobs_data_frame<-jobs_data_frame$jobInfos.properties.CM
+
+##cercam els duplicats
+posicio<-which(duplicated(jobs_data_frame))
+
+##identificam el value dels duplicats
+jobs_data_frame[posicio]
+```
+
+
+
+### Charts by job parametres
+<br>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height = 4, fig.width = 4}
+library("jsonlite")
+library(ggplot2)
+library(dplyr)
+library(curl)
+
+##agafam el JSON de la URL i el convertim en dataframe
+URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+jobs_data_frame <- as.data.frame(URL_jobs)
+
+##accedim al segon nivell de JSON/dataframe
+jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+
+##eliminam els jobs de disney
+jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                          & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+
+
+##convertim els NA en FALSE
+jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+
+#GVCC
+GVCC<-ggplot(jobs_data_frame_3, aes(x = factor (jobInfos.properties.GVCC)))+
+  geom_bar(fill = "#3995e6", width = 0.5)+
+  labs(x = "",y = "Count")+
+  geom_text(aes(label = ..count..), stat = "count", vjust =-0.25, colour = "black", position=position_dodge(width=0.9))+
+  ggtitle("GVCC")
+
+GVCC + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
+
+
+
+#CBD
+CBD<-ggplot(jobs_data_frame_3, aes(x = factor (jobInfos.properties.Breakdown)))+
+  geom_bar(fill = "#3995e6", width = 0.5)+
+  labs(x = "",y = "Count")+
+  geom_text(aes(label = ..count..), stat = "count", vjust =-0.25, colour = "black", position=position_dodge(width=0.9))+
+  ggtitle("CBD")
+
+CBD + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
+
+
+
+##isFinalStatus
+isFinalStatus<-ggplot(jobs_data_frame_3, aes(x = factor (jobInfos.properties.isFinalStatus)))+
+  geom_bar(fill = "#3995e6", width = 0.5)+
+  labs(x = "",y = "Count")+
+  geom_text(aes(label = ..count..), stat = "count", vjust =-0.25, colour = "black", position=position_dodge(width=0.9))+
+  ggtitle("isFinalStatus")
+
+isFinalStatus + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
+
+
+
+##holderNameAllPax
+holderNameAllPax<-ggplot(jobs_data_frame_3, aes(x = factor (jobInfos.properties.holderNameAllPax)))+
+  geom_bar(fill = "#3995e6", width = 0.5)+
+  labs(x = "",y = "Count")+
+  geom_text(aes(label = ..count..), stat = "count", vjust =-0.25, colour = "black", position=position_dodge(width=0.9))+
+  ggtitle("holderNameAllPax")
+
+holderNameAllPax + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
+
+
+
+##pmsRoomCode
+pmsRoomCode<-ggplot(jobs_data_frame_3, aes(x = factor (jobInfos.properties.pmsRoomCode)))+
+  geom_bar(fill = "#3995e6", width = 0.5)+
+  labs(x = "",y = "Count")+
+  geom_text(aes(label = ..count..), stat = "count", vjust =-0.25, colour = "black", position=position_dodge(width=0.9))+
+  ggtitle("pmsRoomCode")
+
+pmsRoomCode + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
+  
+```
+
