@@ -4,7 +4,7 @@
   "description": "This is an example Shiny application, which uses the heroku-buildpack-r for Heroku.",
   "keywords": [
     "r",
-    "Rdm"
+    "markdown"
   ],
   "repository": "https://github.com/vbinimelis/BMS_jobs.git",
   "success_url": "/",
