@@ -1,0 +1,21 @@
+{
+  "name": "heroku-shiny-app",
+  "stack": "heroku-18",
+  "description": "This is an example Shiny application, which uses the heroku-buildpack-r for Heroku.",
+  "keywords": [
+    "r",
+    "shiny"
+  ],
+  "repository": "https://github.com/vbinimelis/BMS_jobs.git",
+  "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/virtualstaticvoid/heroku-buildpack-r.git"
+    }
+  ]
+}
