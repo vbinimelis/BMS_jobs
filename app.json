@@ -1,6 +1,6 @@
 port <- Sys.getenv('PORT')
 
-server <- plumb("BMS_jobs_2.Rmd")
+server <- rdm("BMS_jobs_2.Rmd")
 
 server$run(
 	host = '0.0.0.0',
